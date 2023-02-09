@@ -1,4 +1,4 @@
-import { NativeModules, Platform } from 'react-native';
+import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
 
 const LINKING_ERROR =
   `The package 'react-native-connectivity-checker' doesn't seem to be linked. Make sure: \n\n` +
@@ -17,6 +17,30 @@ const ConnectivityChecker = NativeModules.ConnectivityChecker
       }
     );
 
-export function multiply(a: number, b: number): Promise<number> {
-  return ConnectivityChecker.multiply(a, b);
+export type TEvent = 'location';
+
+export type TEventResult = {
+  eventType: TEvent;
+  status: boolean;
+};
+
+export type TListener = (res: TEventResult) => void;
+
+export default class ConnectivityManager {
+  static _eventEmitter = new NativeEventEmitter(ConnectivityChecker);
+
+  static addStatusListener(listener: TListener) {
+    return ConnectivityManager._eventEmitter.addListener(
+      'RNConnectivityStatus',
+      listener
+    );
+  }
+
+  static isLocationEnabled(): Promise<boolean> {
+    return ConnectivityChecker.isLocationEnabled();
+  }
+
+  static isLocationEnabledSync(): boolean {
+    return ConnectivityChecker.isLocationEnabledSync();
+  }
 }

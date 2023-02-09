@@ -1,4 +1,4 @@
-package com.connectivitychecker;
+package com.adamvx.connectivitychecker;
 
 import androidx.annotation.NonNull;
 

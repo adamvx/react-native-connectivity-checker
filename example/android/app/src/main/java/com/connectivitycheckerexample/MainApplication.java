@@ -1,4 +1,4 @@
-package com.connectivitycheckerexample;
+package com.adamvx.connectivitycheckerexample;
 
 import android.app.Application;
 import com.facebook.react.PackageList;

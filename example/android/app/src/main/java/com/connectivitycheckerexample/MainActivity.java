@@ -1,4 +1,4 @@
-package com.connectivitycheckerexample;
+package com.adamvx.connectivitycheckerexample;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

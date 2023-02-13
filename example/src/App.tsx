@@ -1,18 +1,25 @@
 import * as React from 'react';
 
-import { StyleSheet, View, Text } from 'react-native';
-import { multiply } from 'react-native-connectivity-checker';
+import { StyleSheet, Text, View } from 'react-native';
+import ConnectivityChecker from 'react-native-connectivity-checker';
 
 export default function App() {
-  const [result, setResult] = React.useState<number | undefined>();
+  const [result, setResult] = React.useState<boolean>();
 
   React.useEffect(() => {
-    multiply(3, 7).then(setResult);
+    ConnectivityChecker.isLocationEnabled().then((res) => {
+      setResult(res);
+    });
+
+    ConnectivityChecker.addListener((res) => {
+      console.log(res);
+      setResult(res.status);
+    });
   }, []);
 
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <Text>Result: {String(result)}</Text>
     </View>
   );
 }

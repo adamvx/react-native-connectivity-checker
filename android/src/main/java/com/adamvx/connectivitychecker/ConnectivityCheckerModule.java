@@ -26,24 +26,27 @@ public class ConnectivityCheckerModule extends ReactContextBaseJavaModule {
   private final static String EVENT_TYPE = "eventType";
   private final static String EVENT_STATUS = "status";
 
+  private int listenerCount = 0;
+
+  private final IntentFilter locationFilter = new IntentFilter();
+
+  private final BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      final boolean locationEnabled = intent.getAction() != null
+        && intent.getAction().matches(LocationManager.PROVIDERS_CHANGED_ACTION)
+        && isLocationEnabledSync();
+
+      final WritableMap eventMap = new WritableNativeMap();
+      eventMap.putString(EVENT_TYPE, EventType.LOCATION.getName());
+      eventMap.putBoolean(EVENT_STATUS, locationEnabled);
+      getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(TOPIC, eventMap);
+    }
+  };
+
   ConnectivityCheckerModule(ReactApplicationContext context) {
     super(context);
-    final IntentFilter locationFilter = new IntentFilter();
     locationFilter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
-    BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
-      @Override
-      public void onReceive(Context context, Intent intent) {
-        final boolean locationEnabled = intent.getAction() != null
-          && intent.getAction().matches(LocationManager.PROVIDERS_CHANGED_ACTION)
-          && isLocationEnabledSync();
-
-        final WritableMap eventMap = new WritableNativeMap();
-        eventMap.putString(EVENT_TYPE, EventType.LOCATION.getName());
-        eventMap.putBoolean(EVENT_STATUS, locationEnabled);
-        getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(TOPIC, eventMap);
-      }
-    };
-    getReactApplicationContext().registerReceiver(mLocationReceiver, locationFilter);
   }
 
   @Override
@@ -52,7 +55,6 @@ public class ConnectivityCheckerModule extends ReactContextBaseJavaModule {
     return NAME;
   }
 
-  @ReactMethod(isBlockingSynchronousMethod = true)
   public boolean isLocationEnabledSync() {
     boolean locationEnabled;
 
@@ -72,6 +74,22 @@ public class ConnectivityCheckerModule extends ReactContextBaseJavaModule {
     }
 
     return locationEnabled;
+  }
+
+  @ReactMethod
+  public void addListener(String eventName) {
+    if (listenerCount == 0) {
+      getReactApplicationContext().registerReceiver(mLocationReceiver, locationFilter);
+    }
+    listenerCount += 1;
+  }
+
+  @ReactMethod
+  public void removeListeners(Integer count) {
+    listenerCount -= count;
+    if (listenerCount == 0) {
+      getReactApplicationContext().unregisterReceiver(mLocationReceiver);
+    }
   }
 
   @ReactMethod

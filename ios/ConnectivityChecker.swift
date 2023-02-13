@@ -1,20 +1,26 @@
 import Swift
 import CoreLocation
+import React
 
 let EVENT_TYPE = "eventType";
 let EVENT_STATUS = "eventStatus";
 let TOPIC = "RNConnectivityChecker"
 
+enum EventType: String {
+  case location = "location"
+}
+
 @objc(ConnectivityChecker)
-class ConnectivityChecker: NSObject, CLLocationManagerDelegate {
+class ConnectivityChecker: RCTEventEmitter {
     
     let manager = CLLocationManager()
-    init() {
+    
+    override init() {
+        super.init()
         manager.delegate = self
     }
     
-    @objc
-    func isLocationEnabledSync() {
+    func isLocationEnabledSync() -> Bool {
         return CLLocationManager.locationServicesEnabled()
     }
     
@@ -23,21 +29,23 @@ class ConnectivityChecker: NSObject, CLLocationManagerDelegate {
         resolve(isLocationEnabledSync())
     }
     
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        let isEnabled = isLocationEnabledSync()
-        sendEvent(EventType.location, isEnabled)
-    }
-    
-    func sendEvent(event: EventType, status: Bool) {
+    func notify(event: EventType, status: Bool) {
         let payload: [String: Any] = [
             EVENT_TYPE: event,
             EVENT_STATUS: status
         ]
-        self.sendEventWithName(TOPIC, payload)
+        self.sendEvent(withName: TOPIC, body: payload)
     }
     
-    enum EventType: String {
-      case location = "location"
+    override func supportedEvents() -> [String]! {
+        return [TOPIC]
     }
     
+}
+
+extension ConnectivityChecker : CLLocationManagerDelegate {
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        let isEnabled = isLocationEnabledSync()
+        notify(event: EventType.location, status: isEnabled)
+    }
 }

@@ -24,23 +24,30 @@ export type TEventResult = {
   status: boolean;
 };
 
-export type TListener = (res: TEventResult) => void;
+export type TEventListener = (res: TEventResult) => void;
 
-export default class ConnectivityManager {
-  static _eventEmitter = new NativeEventEmitter(ConnectivityChecker);
+const EVENT_TYPE = 'RNConnectivityChecker';
 
-  static addStatusListener(listener: TListener) {
-    return ConnectivityManager._eventEmitter.addListener(
-      'RNConnectivityStatus',
-      listener
-    );
+class ConnectivityManager {
+  private _eventEmitter = new NativeEventEmitter(ConnectivityChecker);
+
+  addListener(listener: TEventListener) {
+    return this._eventEmitter.addListener(EVENT_TYPE, listener);
   }
 
-  static isLocationEnabled(): Promise<boolean> {
+  removeAll() {
+    return this._eventEmitter.removeAllListeners(EVENT_TYPE);
+  }
+
+  listenerCount() {
+    return this._eventEmitter.listenerCount;
+  }
+
+  isLocationEnabled(): Promise<boolean> {
     return ConnectivityChecker.isLocationEnabled();
   }
-
-  static isLocationEnabledSync(): boolean {
-    return ConnectivityChecker.isLocationEnabledSync();
-  }
 }
+
+const connectivityManager = new ConnectivityManager();
+
+export default connectivityManager;

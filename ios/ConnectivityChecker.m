@@ -4,8 +4,6 @@
 
 RCT_EXTERN_METHOD(isLocationEnabled: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(isLocationEnabledSync)
-
 + (BOOL)requiresMainQueueSetup
 {
   return NO;

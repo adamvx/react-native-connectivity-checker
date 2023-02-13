@@ -40,7 +40,7 @@ class ConnectivityManager {
   }
 
   listenerCount() {
-    return this._eventEmitter.listenerCount;
+    return this._eventEmitter.listenerCount(EVENT_TYPE);
   }
 
   isLocationEnabled(): Promise<boolean> {

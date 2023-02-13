@@ -3,7 +3,7 @@ import CoreLocation
 import React
 
 let EVENT_TYPE = "eventType";
-let EVENT_STATUS = "eventStatus";
+let EVENT_STATUS = "status";
 let TOPIC = "RNConnectivityChecker"
 
 enum EventType: String {
@@ -31,7 +31,7 @@ class ConnectivityChecker: RCTEventEmitter {
     
     func notify(event: EventType, status: Bool) {
         let payload: [String: Any] = [
-            EVENT_TYPE: event,
+            EVENT_TYPE: event.rawValue,
             EVENT_STATUS: status
         ]
         self.sendEvent(withName: TOPIC, body: payload)

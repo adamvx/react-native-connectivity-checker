@@ -11,10 +11,13 @@ export default function App() {
       setResult(res);
     });
 
-    ConnectivityChecker.addListener((res) => {
-      console.log(res);
+    const listener = ConnectivityChecker.addListener((res) => {
       setResult(res.status);
     });
+
+    return () => {
+      listener.remove();
+    };
   }, []);
 
   return (
